@@ -5,7 +5,10 @@
 const recipes = [
   'https://introweb.tech/assets/json/ghostCookies.json',
   'https://introweb.tech/assets/json/birthdayCake.json',
-  'https://introweb.tech/assets/json/chocolateChip.json'
+  'https://introweb.tech/assets/json/chocolateChip.json',
+  'assets/recipes/frittata.json',
+  'assets/recipes/mashpotatoes.json',
+  'assets/recipes/pasta.json'
 ];
 
 // Once all of the recipes that were specified above have been fetched, their
@@ -38,6 +41,23 @@ async function fetchRecipes() {
     // for the keys. Once everything in the array has been successfully fetched, call the resolve(true)
     // callback function to resolve this promise. If there's any error fetching any of the items, call
     // the reject(false) function.
+    for (let i = 0; i < recipes.length; i++) {
+      fetch(recipes[i])
+        .then(response => response.json())
+        .then(dataJson => {
+          recipeData[recipes[i]] = dataJson;
+
+          // resolve true if successful storage of data in recipeData object
+          if (Object.keys(recipeData).length === recipes.length) {
+            resolve(true);
+          }
+        })
+
+        // catches the error and reject false
+        .catch(err => {
+          reject(false);
+        });
+    }
 
     // For part 2 - note that you can fetch local files as well, so store any JSON files you'd like to fetch
     // in the recipes folder and fetch them from there. You'll need to add their paths to the recipes array.
@@ -54,6 +74,11 @@ function createRecipeCards() {
   // show any others you've added when the user clicks on the "Show more" button.
 
   // Part 1 Expose - TODO
+  for (let i = 0; i < 3; i++) {
+    let card = document.createElement('recipe-card')
+    card.data = recipeData[recipes[i]];
+    document.querySelector("main").appendChild(card);
+  }
 }
 
 function bindShowMore() {
@@ -65,4 +90,24 @@ function bindShowMore() {
   // in the recipeData object where you stored them/
 
   // Part 2 Explore - TODO
+  let button = document.querySelector("#button-wrapper > button");
+  let main = document.getElementsByTagName('main')[0];
+  button.addEventListener("click", () => {
+    var recipeMore = Object.keys(recipeData)
+    if (button.innerHTML === "Show more") {
+      for (var i = 3; i < recipeMore.length; i++) {
+        const card = document.createElement("recipe-card");
+        card.data = recipeData[recipes[i]];
+        main.appendChild(card);
+      }
+      button.innerHTML = "Show less";
+    } 
+    else if (button.innerHTML === "Show less") {
+      let cardsRemove = document.querySelectorAll("recipe-card");
+      for (var i = 3; i < recipeMore.length; i++) {
+        cardsRemove[i].remove();
+      }
+      button.innerHTML = "Show more";
+    }
+  });
 }
